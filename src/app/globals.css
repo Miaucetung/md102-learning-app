@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Basis-Styles */
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-zinc-100 text-zinc-900 antialiased;
+  }
+
+  main {
+    @apply min-h-screen;
+  }
+}
+
+/* Komponenten-Styles: Erklärungen, Markdown, Tabellen, Screenshots */
+@layer components {
+  /* Wrapper für breite Inhalte (Tabellen, große Bilder) */
+  .exam-explanation-wrapper {
+    @apply overflow-x-auto my-3;
+  }
+
+  /* Grundstil für den Textbereich der Erklärung */
+  .exam-explanation {
+    @apply text-[13px] leading-relaxed space-y-3;
+  }
+
+  .exam-explanation p {
+    @apply mb-2;
+  }
+
+  .exam-explanation strong {
+    @apply font-semibold;
+  }
+
+  .exam-explanation em {
+    @apply italic;
+  }
+
+  .exam-explanation ul {
+    @apply list-disc pl-5 mb-2;
+  }
+
+  .exam-explanation ol {
+    @apply list-decimal pl-5 mb-2;
+  }
+
+  .exam-explanation code {
+    @apply font-mono text-[12px] bg-zinc-100 px-1 py-0.5 rounded;
+  }
+
+  .exam-explanation pre {
+    @apply font-mono text-[12px] bg-zinc-900 text-zinc-50 rounded-lg p-3 overflow-x-auto my-3;
+  }
+
+  /* Bilder in Erklärungen (Screenshots) */
+  .exam-explanation img {
+    @apply max-w-full h-auto rounded-lg mx-auto my-3 shadow-sm;
+  }
+
+  .exam-explanation figure {
+    @apply my-3 text-center;
+  }
+
+  .exam-explanation figcaption {
+    @apply mt-1 text-[11px] text-zinc-500;
+  }
+
+  /* Tabellen – für alle Markdown-Tabellen in Erklärungen
+     (wir verwenden zusätzlich die Klasse .markdown-table in der QuestionCard) */
+  .exam-explanation table,
+  .markdown-table table {
+    @apply w-full border-collapse text-[12px] my-3;
+    min-width: 420px; /* damit Spalten nicht zusammenkleben */
+  }
+
+  .exam-explanation thead,
+  .markdown-table thead {
+    @apply bg-zinc-100;
+  }
+
+  .exam-explanation th,
+  .exam-explanation td,
+  .markdown-table th,
+  .markdown-table td {
+    @apply border border-zinc-200 px-2 py-1 text-left align-top;
+    white-space: nowrap;         /* ideal für Ports / Protokolle */
+  }
+
+  .exam-explanation th,
+  .markdown-table th {
+    @apply font-semibold text-zinc-800;
+  }
+
+  .exam-explanation tbody tr:nth-child(even),
+  .markdown-table tbody tr:nth-child(even) {
+    @apply bg-zinc-50;
+  }
+
+  .exam-explanation tbody tr:hover,
+  .markdown-table tbody tr:hover {
+    @apply bg-emerald-50/60;
+  }
+
+  /* Optional: Monospace für „technische“ Tabellen (Ports, IPs, etc.) */
+  .exam-explanation table,
+  .markdown-table table {
+    @apply font-mono;
+  }
+
+  /* Kleine Bild-Grid für mehrere Screenshots */
+  .exam-screenshot-grid {
+    @apply grid gap-3;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
