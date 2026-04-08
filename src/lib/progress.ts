@@ -1,6 +1,6 @@
 // src/lib/progress.ts
 
-const PREFIX = "mainlab-progress:";
+const PREFIX = "md102-app-progress:";
 
 type ProgressMap = Record<string, boolean>;
 
@@ -26,6 +26,9 @@ export function get(mid: string): ProgressMap {
   }
 }
 
+// Alias for backward compatibility
+export const readProgressMap = get;
+
 /**
  * Speichert die Map für ein Modul in localStorage.
  */
@@ -39,4 +42,13 @@ export function set(mid: string, map: ProgressMap): void {
   } catch {
     // Ignorieren – z. B. wenn Storage voll ist oder im Private Mode
   }
+}
+
+/**
+ * Berechnet den Fortschritt in Prozent.
+ */
+export function pctFromMap(map: ProgressMap, total: number): number {
+  if (total <= 0) return 0;
+  const done = Object.values(map).filter(Boolean).length;
+  return Math.round((done / total) * 100);
 }

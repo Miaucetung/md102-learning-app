@@ -1,8 +1,8 @@
 // src/app/lab-az104-exam/[id]/page.tsx
 "use client";
 
-import { useParams } from "next/navigation";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { QUESTIONS_AZ104 } from "../data/questions-az104";
 
@@ -16,31 +16,25 @@ export default function Az104QuestionPage() {
     return (
       <main className="p-6">
         <p>Frage nicht gefunden.</p>
-        <Link
-          href="/lab-az104-exam"
-          className="text-blue-600 hover:underline"
-        >
+        <Link href="/lab-az104-exam" className="text-blue-600 hover:underline">
           ⬅ Zurück zur Übersicht
         </Link>
       </main>
     );
   }
 
-  const selectedOption =
-    choice !== null ? question.options[choice] : undefined;
+  const selectedOption = choice !== null ? question.options[choice] : undefined;
 
-  // Korrektheitsprüfung: wir vergleichen auf den Buchstaben (A., B., C., ...)
+  // Korrektheitsprüfung: wir vergleichen den Buchstaben-Key (A, B, C, ...)
   const isCorrect =
     checked &&
     selectedOption !== undefined &&
-    selectedOption.trim().startsWith(question.correctAnswer);
+    question.correctAnswers.includes(selectedOption.key);
 
   return (
     <main className="mx-auto max-w-3xl p-6 space-y-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">
-          AZ-104 – {question.id}
-        </h1>
+        <h1 className="text-xl font-bold">AZ-104 – {question.id}</h1>
         <Link
           href="/lab-az104-exam"
           className="text-sm text-blue-600 hover:underline"
@@ -50,9 +44,7 @@ export default function Az104QuestionPage() {
       </header>
 
       <div className="space-y-4">
-        <p className="font-medium whitespace-pre-line">
-          {question.question}
-        </p>
+        <p className="font-medium whitespace-pre-line">{question.question}</p>
 
         {question.options.map((opt, i) => (
           <label
@@ -69,7 +61,9 @@ export default function Az104QuestionPage() {
               }}
               className="mt-0.5"
             />
-            <span>{opt}</span>
+            <span>
+              <strong>{opt.key}.</strong> {opt.text}
+            </span>
           </label>
         ))}
 
@@ -95,7 +89,7 @@ export default function Az104QuestionPage() {
               {isCorrect ? "✅ Richtig!" : "❌ Falsch."}
             </p>
             <p className="text-sm mt-1">
-              Richtige Antwort: {question.correctAnswers}
+              Richtige Antwort(en): {question.correctAnswers.join(", ")}
             </p>
             {question.explanationDe && (
               <p className="text-sm mt-2 text-zinc-700 whitespace-pre-line">

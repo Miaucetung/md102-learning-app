@@ -1,25 +1,82 @@
 "use client";
 
+import { PageHeader } from "@/components/layout";
+import { Award, BookOpen } from "lucide-react";
 import { useState } from "react";
-import { QUESTIONS_MD102 } from "./questions-md102"; // <- WICHTIG: geschweifte Klammern
+import { QUESTIONS_MD102 } from "./questions-md102";
 
 export default function LabMd102ExamPage() {
-  return (
-    <main className="mx-auto max-w-4xl p-6 space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold">MD-102 – Multiple-Choice-Test</h1>
-        <p className="text-sm text-zinc-600">
-          Übungsfragen mit Lösungen und Erklärungen — basierend auf deiner
-          eigenen MD-102-Sammlung.
-        </p>
-      </header>
+  const [showAll, setShowAll] = useState(false);
+  const displayQuestions = showAll
+    ? QUESTIONS_MD102
+    : QUESTIONS_MD102.slice(0, 20);
 
-      <div className="space-y-6">
-        {QUESTIONS_MD102.map((q) => (
-          <QuestionCard key={`${q.id}-${q.number}`} question={q} />
-        ))}
-      </div>
-    </main>
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
+      <PageHeader
+        title="MD-102 Prüfungssimulation"
+        subtitle="Endpoint Administrator"
+        icon={Award}
+        iconGradient="from-blue-500 to-blue-700"
+        crossLinks={[
+          {
+            href: "/learn/md-102",
+            label: "Lernmodule",
+            icon: BookOpen,
+          },
+        ]}
+      />
+
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats Bar */}
+        <div className="mb-6 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-6">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Fragen</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {QUESTIONS_MD102.length}
+              </p>
+            </div>
+            <div className="h-10 w-px bg-gray-200 dark:bg-gray-700" />
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Angezeigt
+              </p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {displayQuestions.length}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="px-4 py-2 text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          >
+            {showAll ? "Weniger anzeigen" : "Alle anzeigen"}
+          </button>
+        </div>
+
+        {/* Questions */}
+        <div className="space-y-6">
+          {displayQuestions.map((q) => (
+            <QuestionCard
+              key={`${q.id ?? `Q${q.number}`}-${q.number}`}
+              question={q}
+            />
+          ))}
+        </div>
+
+        {!showAll && QUESTIONS_MD102.length > 20 && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => setShowAll(true)}
+              className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-colors"
+            >
+              Alle {QUESTIONS_MD102.length} Fragen laden
+            </button>
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
 
@@ -36,49 +93,62 @@ function QuestionCard({ question: q }: QuestionProps) {
     q.correctAnswers.length === 1 &&
     q.correctAnswers[0] === selected;
 
-  const cardBase =
-    "rounded-xl border p-5 bg-white space-y-4 transition shadow-sm";
-  const cardClass =
-    isAnswered && !isCorrectSingle
-      ? cardBase + " border-rose-300 bg-rose-50"
-      : cardBase + " border-zinc-200";
-
   return (
-    <article className={cardClass}>
-      {/* Kopfzeile */}
-      <div className="text-xs text-zinc-500 font-mono flex items-center gap-2">
-        <span>
-          {q.number}. {q.id}
+    <article
+      className={`rounded-xl border p-5 space-y-4 transition shadow-sm ${
+        isAnswered && !isCorrectSingle
+          ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20"
+          : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+      }`}
+    >
+      {/* Header */}
+      <div className="text-xs text-gray-500 dark:text-gray-400 font-mono flex items-center gap-2">
+        <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded">
+          {q.number}
         </span>
-        <span>·</span>
         <span>{q.area}</span>
         <span>·</span>
-        <span className="uppercase">{q.difficulty}</span>
+        <span
+          className={`uppercase ${
+            q.difficulty === "hard"
+              ? "text-red-600 dark:text-red-400"
+              : q.difficulty === "medium"
+                ? "text-yellow-600 dark:text-yellow-400"
+                : "text-green-600 dark:text-green-400"
+          }`}
+        >
+          {q.difficulty}
+        </span>
       </div>
 
-      {/* Frage */}
-      <div className="whitespace-pre-line text-sm leading-relaxed">
+      {/* Question */}
+      <div className="whitespace-pre-line text-sm leading-relaxed text-gray-900 dark:text-white">
         {q.question}
       </div>
 
-      {/* Optionen */}
+      {/* Options */}
       <div className="space-y-2">
         {q.options.map((opt) => {
           const isSelected = selected === opt.key;
           const isCorrectOption = q.correctAnswers.includes(opt.key);
 
           let optionClass =
-            "flex items-center gap-3 rounded border px-3 py-2 text-sm cursor-pointer transition bg-white border-zinc-200 hover:border-emerald-400";
+            "flex items-center gap-3 rounded-lg border px-4 py-3 text-sm cursor-pointer transition ";
 
           if (isAnswered) {
             if (isCorrectOption) {
-              optionClass =
-                "flex items-center gap-3 rounded border px-3 py-2 text-sm cursor-pointer transition border-emerald-500 bg-emerald-50";
+              optionClass +=
+                "border-green-500 dark:border-green-600 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300";
+            } else if (isSelected) {
+              optionClass +=
+                "border-red-400 dark:border-red-600 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300";
+            } else {
+              optionClass +=
+                "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400";
             }
-            if (isSelected && !isCorrectOption) {
-              optionClass =
-                "flex items-center gap-3 rounded border px-3 py-2 text-sm cursor-pointer transition border-rose-400 bg-rose-50";
-            }
+          } else {
+            optionClass +=
+              "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 text-gray-900 dark:text-white";
           }
 
           return (
@@ -87,7 +157,7 @@ function QuestionCard({ question: q }: QuestionProps) {
                 type="radio"
                 name={q.id}
                 value={opt.key}
-                className="h-4 w-4"
+                className="h-4 w-4 accent-blue-500"
                 checked={isSelected}
                 onChange={() => setSelected(opt.key)}
               />
@@ -100,24 +170,30 @@ function QuestionCard({ question: q }: QuestionProps) {
         })}
       </div>
 
-      {/* Lösung / Erklärung */}
+      {/* Explanation */}
       {isAnswered && (
-        <div className="mt-3 rounded-lg bg-zinc-50 border border-zinc-200 p-3 text-sm space-y-2">
-          <div>
-            <span className="font-semibold">Richtige Antwort(en): </span>
-            <span>{q.correctAnswers.join(", ")}</span>
+        <div className="mt-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 text-sm space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded font-medium text-xs">
+              Richtig: {q.correctAnswers.join(", ")}
+            </span>
           </div>
 
-          <div className="whitespace-pre-line text-[13px] leading-relaxed">
-            {q.explanation}
+          <div className="whitespace-pre-line text-gray-700 dark:text-gray-300 leading-relaxed">
+            {q.explanation ?? q.explanationDe}
           </div>
 
           {q.references && q.references.length > 0 && (
-            <ul className="list-disc pl-5 text-xs text-zinc-500">
-              {q.references.map((ref) => (
-                <li key={ref}>{ref}</li>
-              ))}
-            </ul>
+            <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                Referenzen:
+              </p>
+              <ul className="list-disc pl-5 text-xs text-gray-500 dark:text-gray-400">
+                {q.references.map((ref) => (
+                  <li key={ref}>{ref}</li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       )}

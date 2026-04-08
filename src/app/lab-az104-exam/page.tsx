@@ -1,21 +1,21 @@
 // src/app/lab-az104-exam/page.tsx
 "use client";
 
-import React, { memo, useMemo, useState } from "react";
-import { QUESTIONS_AZ104, type Az104Question } from "./questions-az104";
-import { marked } from "marked";
 import DOMPurify from "isomorphic-dompurify";
+import { marked } from "marked";
+import { memo, useMemo, useState } from "react";
+import { QUESTIONS_AZ104, type Az104Question } from "./data/questions-az104";
 
 // Markdown einmal global konfigurieren
 marked.setOptions({
-  gfm: true,   // GitHub-Flavored Markdown (Tabellen, usw.)
-  breaks: true // einfache Zeilenumbrüche respektieren
+  gfm: true, // GitHub-Flavored Markdown (Tabellen, usw.)
+  breaks: true, // einfache Zeilenumbrüche respektieren
 });
 
 type Mode = "study" | "exam";
 
 type QuestionUiState = {
-  selected: string[];        // unterstützt Single- und Multi-Choice
+  selected: string[]; // unterstützt Single- und Multi-Choice
   isCorrect: boolean | null;
   marked: boolean;
 };
@@ -26,7 +26,7 @@ const buildInitialState = (): Record<string, QuestionUiState> => {
     initial[q.id] = {
       selected: [],
       isCorrect: null,
-      marked: false
+      marked: false,
     };
   }
   return initial;
@@ -50,8 +50,11 @@ export default function LabAz104ExamPage() {
       const question = QUESTIONS_AZ104.find((q) => q.id === questionId);
       if (!question) return prev;
 
-      const prevState: QuestionUiState =
-        prev[questionId] ?? { selected: [], isCorrect: null, marked: false };
+      const prevState: QuestionUiState = prev[questionId] ?? {
+        selected: [],
+        isCorrect: null,
+        marked: false,
+      };
 
       let nextSelected: string[];
 
@@ -82,8 +85,8 @@ export default function LabAz104ExamPage() {
         [questionId]: {
           ...prevState,
           selected: nextSelected,
-          isCorrect
-        }
+          isCorrect,
+        },
       };
     });
   };
@@ -94,8 +97,8 @@ export default function LabAz104ExamPage() {
       [questionId]: {
         selected: [],
         isCorrect: null,
-        marked: prev[questionId]?.marked ?? false
-      }
+        marked: prev[questionId]?.marked ?? false,
+      },
     }));
   };
 
@@ -109,8 +112,8 @@ export default function LabAz104ExamPage() {
       ...prev,
       [questionId]: {
         ...prev[questionId],
-        marked: !prev[questionId]?.marked
-      }
+        marked: !prev[questionId]?.marked,
+      },
     }));
   };
 
@@ -248,7 +251,7 @@ const QuestionCard = memo(function QuestionCard({
   showSolutions,
   onSelect,
   onReset,
-  onToggleMark
+  onToggleMark,
 }: QuestionProps) {
   const isAnswered = state.selected.length > 0;
   const showFeedback = isAnswered && (mode === "study" || showSolutions);
@@ -274,10 +277,10 @@ const QuestionCard = memo(function QuestionCard({
 
   // Erklärung → Markdown → HTML → Sanitizing
   const explanationHtml = useMemo(() => {
-    if (!q.explanation) return "";
-    const md = marked.parse(q.explanation);
+    if (!q.explanationDe) return "";
+    const md = marked.parse(q.explanationDe);
     return DOMPurify.sanitize(md as string);
-  }, [q.explanation]);
+  }, [q.explanationDe]);
 
   return (
     <article className={cardClass}>
@@ -344,8 +347,7 @@ const QuestionCard = memo(function QuestionCard({
                 base + " border-emerald-500 bg-emerald-50 text-emerald-900";
             }
             if (isSelected && !isCorrectOption) {
-              optionClass =
-                base + " border-rose-400 bg-rose-50 text-rose-900";
+              optionClass = base + " border-rose-400 bg-rose-50 text-rose-900";
             }
           }
 
@@ -382,17 +384,8 @@ const QuestionCard = memo(function QuestionCard({
               dangerouslySetInnerHTML={{ __html: explanationHtml }}
             />
           </div>
-
-          {q.references && q.references.length > 0 && (
-            <ul className="list-disc pl-5 text-xs text-zinc-500">
-              {q.references.map((ref) => (
-                <li key={ref}>{ref}</li>
-              ))}
-            </ul>
-          )}
         </div>
       )}
     </article>
   );
 });
-

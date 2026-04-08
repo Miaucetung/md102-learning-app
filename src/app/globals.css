@@ -4,22 +4,102 @@
 
 /* Basis-Styles */
 @layer base {
+  :root {
+    --background: 250 250 250;
+    --foreground: 17 24 39;
+  }
+
+  .dark {
+    --background: 3 7 18;
+    --foreground: 243 244 246;
+  }
+
   html,
   body {
     height: 100%;
   }
 
   body {
-    @apply bg-zinc-100 text-zinc-900 antialiased;
+    @apply bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased;
   }
 
   main {
     @apply min-h-screen;
   }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Selection colors */
+  ::selection {
+    @apply bg-blue-500/30;
+  }
 }
 
-/* Komponenten-Styles: Erklärungen, Markdown, Tabellen, Screenshots */
+/* Komponenten-Styles: Learning Blocks, Cards, etc. */
 @layer components {
+  /* Learning Block Base Styles */
+  .learning-block {
+    @apply bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 transition-all duration-200;
+  }
+
+  .learning-block:hover {
+    @apply border-gray-300 dark:border-gray-700 shadow-sm;
+  }
+
+  /* Block Type Indicators */
+  .block-prediction {
+    @apply border-l-4 border-l-amber-500;
+  }
+
+  .block-scenario {
+    @apply border-l-4 border-l-blue-500;
+  }
+
+  .block-concept {
+    @apply border-l-4 border-l-purple-500;
+  }
+
+  .block-practice {
+    @apply border-l-4 border-l-green-500;
+  }
+
+  .block-mistake {
+    @apply border-l-4 border-l-red-500;
+  }
+
+  .block-exam-trap {
+    @apply border-l-4 border-l-orange-500;
+  }
+
+  /* Code blocks in learning content */
+  .code-block {
+    @apply font-mono text-sm bg-gray-900 dark:bg-gray-950 text-gray-100 rounded-lg p-4 overflow-x-auto border border-gray-800;
+  }
+
+  .code-inline {
+    @apply font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded;
+  }
+
+  /* Terminal styling */
+  .terminal {
+    @apply bg-gray-950 rounded-lg overflow-hidden border border-gray-800;
+  }
+
+  .terminal-header {
+    @apply flex items-center gap-2 px-4 py-2 bg-gray-900 border-b border-gray-800;
+  }
+
+  .terminal-dot {
+    @apply w-3 h-3 rounded-full;
+  }
+
+  .terminal-content {
+    @apply p-4 font-mono text-sm text-green-400;
+  }
+
   /* Wrapper für breite Inhalte (Tabellen, große Bilder) */
   .exam-explanation-wrapper {
     @apply overflow-x-auto my-3;
@@ -51,11 +131,11 @@
   }
 
   .exam-explanation code {
-    @apply font-mono text-[12px] bg-zinc-100 px-1 py-0.5 rounded;
+    @apply font-mono text-[12px] bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded;
   }
 
   .exam-explanation pre {
-    @apply font-mono text-[12px] bg-zinc-900 text-zinc-50 rounded-lg p-3 overflow-x-auto my-3;
+    @apply font-mono text-[12px] bg-gray-900 dark:bg-gray-950 text-gray-50 rounded-lg p-3 overflow-x-auto my-3;
   }
 
   /* Bilder in Erklärungen (Screenshots) */
@@ -68,54 +148,116 @@
   }
 
   .exam-explanation figcaption {
-    @apply mt-1 text-[11px] text-zinc-500;
+    @apply mt-1 text-[11px] text-gray-500 dark:text-gray-400;
   }
 
-  /* Tabellen – für alle Markdown-Tabellen in Erklärungen
-     (wir verwenden zusätzlich die Klasse .markdown-table in der QuestionCard) */
+  /* Tabellen */
   .exam-explanation table,
   .markdown-table table {
     @apply w-full border-collapse text-[12px] my-3;
-    min-width: 420px; /* damit Spalten nicht zusammenkleben */
+    min-width: 420px;
   }
 
   .exam-explanation thead,
   .markdown-table thead {
-    @apply bg-zinc-100;
+    @apply bg-gray-100 dark:bg-gray-800;
   }
 
   .exam-explanation th,
   .exam-explanation td,
   .markdown-table th,
   .markdown-table td {
-    @apply border border-zinc-200 px-2 py-1 text-left align-top;
-    white-space: nowrap;         /* ideal für Ports / Protokolle */
+    @apply border border-gray-200 dark:border-gray-700 px-2 py-1 text-left align-top;
+    white-space: nowrap;
   }
 
   .exam-explanation th,
   .markdown-table th {
-    @apply font-semibold text-zinc-800;
+    @apply font-semibold text-gray-800 dark:text-gray-200;
   }
 
   .exam-explanation tbody tr:nth-child(even),
   .markdown-table tbody tr:nth-child(even) {
-    @apply bg-zinc-50;
+    @apply bg-gray-50 dark:bg-gray-900;
   }
 
   .exam-explanation tbody tr:hover,
   .markdown-table tbody tr:hover {
-    @apply bg-emerald-50/60;
+    @apply bg-blue-50/60 dark:bg-blue-900/20;
   }
 
-  /* Optional: Monospace für „technische“ Tabellen (Ports, IPs, etc.) */
   .exam-explanation table,
   .markdown-table table {
     @apply font-mono;
   }
 
-  /* Kleine Bild-Grid für mehrere Screenshots */
   .exam-screenshot-grid {
     @apply grid gap-3;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  /* Skill badges */
+  .skill-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full;
+  }
+
+  .skill-badge-identity {
+    @apply bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300;
+  }
+
+  .skill-badge-security {
+    @apply bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300;
+  }
+
+  .skill-badge-device {
+    @apply bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300;
+  }
+
+  .skill-badge-app {
+    @apply bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300;
+  }
+
+  /* Progress indicators */
+  .progress-ring {
+    transform: rotate(-90deg);
+  }
+
+  .progress-ring-circle {
+    transition: stroke-dashoffset 0.5s ease-in-out;
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 2s ease-in-out infinite;
+  }
+
+  /* Focus styles for accessibility */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900;
   }
 }
