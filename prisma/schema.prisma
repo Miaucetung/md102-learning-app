@@ -1,0 +1,461 @@
+// ============================================================================
+// Enterprise IT Training Platform - Prisma Database Schema
+// ============================================================================
+// Multi-tenant B2B architecture with full progress tracking
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// AUTHENTICATION & USERS
+// ============================================================================
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  emailVerified   DateTime?
+  displayName     String
+  avatarUrl       String?
+  passwordHash    String?   // For email/password auth
+
+  // Profile
+  jobTitle        String?
+  department      String?
+  experience      ExperienceLevel @default(MID)
+  timezone        String          @default("UTC")
+  language        String          @default("en")
+
+  // Personal subscription (for individual users)
+  personalTier    SubscriptionTier @default(FREE)
+
+  // Organization relationship
+  organizationId  String?
+  organization    Organization?   @relation(fields: [organizationId], references: [id])
+  organizationRole OrgRole        @default(MEMBER)
+
+  // Team memberships
+  teamMemberships TeamMember[]
+
+  // Progress & Activity
+  scenarioAttempts ScenarioAttempt[]
+  achievements      UserAchievement[]
+  skillProfile      SkillProfile?
+
+  // Auth sessions
+  sessions        Session[]
+  accounts        Account[]
+
+  // Metadata
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  lastLoginAt     DateTime?
+
+  // Invitations sent
+  sentInvitations Invitation[] @relation("InvitedBy")
+
+  @@index([organizationId])
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============================================================================
+// ORGANIZATIONS (B2B)
+// ============================================================================
+
+model Organization {
+  id                  String    @id @default(cuid())
+  name                String
+  slug                String    @unique
+  domain              String?   @unique // For SSO matching
+
+  // Subscription
+  tier                SubscriptionTier    @default(FREE)
+  subscriptionStatus  SubscriptionStatus  @default(TRIAL)
+  subscriptionStart   DateTime            @default(now())
+  subscriptionEnd     DateTime?
+  maxSeats            Int                 @default(5)
+
+  // Branding
+  logoUrl             String?
+  primaryColor        String?
+
+  // Features
+  ssoEnabled          Boolean   @default(false)
+  apiAccessEnabled    Boolean   @default(false)
+  customScenarios     Boolean   @default(false)
+  advancedAnalytics   Boolean   @default(false)
+
+  // Settings
+  settings            Json      @default("{}")
+
+  // Relationships
+  users               User[]
+  teams               Team[]
+  invitations         Invitation[]
+  apiKeys             ApiKey[]
+
+  // Metadata
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([domain])
+}
+
+model Team {
+  id              String    @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name            String
+  description     String?
+
+  members         TeamMember[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      TeamRole @default(MEMBER)
+  joinedAt  DateTime @default(now())
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+}
+
+model Invitation {
+  id              String    @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  email           String
+  role            OrgRole   @default(MEMBER)
+  teamId          String?
+
+  invitedById     String
+  invitedBy       User      @relation("InvitedBy", fields: [invitedById], references: [id])
+
+  token           String    @unique @default(cuid())
+  status          InvitationStatus @default(PENDING)
+
+  createdAt       DateTime  @default(now())
+  expiresAt       DateTime
+  acceptedAt      DateTime?
+
+  @@index([organizationId])
+  @@index([email])
+  @@index([token])
+}
+
+model ApiKey {
+  id              String    @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name            String
+  keyHash         String    @unique // Hashed key for security
+  keyPrefix       String    // First 8 chars for identification
+  permissions     String[]  // Array of permission strings
+
+  status          ApiKeyStatus @default(ACTIVE)
+  lastUsedAt      DateTime?
+  expiresAt       DateTime?
+
+  createdAt       DateTime  @default(now())
+
+  @@index([organizationId])
+  @@index([keyHash])
+}
+
+// ============================================================================
+// SCENARIOS (Content - stored in code, referenced here for tracking)
+// ============================================================================
+
+// Scenario metadata for tracking (actual content is in TypeScript files)
+model ScenarioMeta {
+  id              String    @id // Matches scenario slug
+  category        ScenarioCategory
+  difficulty      ScenarioDifficulty
+  tier            SubscriptionTier @default(FREE)
+
+  // Tracking
+  totalAttempts   Int       @default(0)
+  totalCompletions Int      @default(0)
+  averageScore    Float     @default(0)
+  averageTimeSeconds Int    @default(0)
+
+  // Relationships
+  attempts        ScenarioAttempt[]
+
+  // Metadata
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([category])
+  @@index([difficulty])
+  @@index([tier])
+}
+
+// ============================================================================
+// PROGRESS TRACKING
+// ============================================================================
+
+model ScenarioAttempt {
+  id              String    @id @default(cuid())
+
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  scenarioId      String
+  scenario        ScenarioMeta @relation(fields: [scenarioId], references: [id])
+
+  // Attempt data
+  status          AttemptStatus @default(IN_PROGRESS)
+  score           Int           @default(0)
+  maxScore        Int           @default(100)
+  timeSpentSeconds Int          @default(0)
+
+  // Decision tracking (JSON array of decisions made)
+  decisions       Json          @default("[]")
+
+  // Timestamps
+  startedAt       DateTime      @default(now())
+  completedAt     DateTime?
+
+  @@index([userId])
+  @@index([scenarioId])
+  @@index([userId, scenarioId])
+  @@index([startedAt])
+}
+
+model SkillProfile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Overall stats
+  totalScenariosCompleted Int   @default(0)
+  totalTimeSpentMinutes   Int   @default(0)
+  averageScore            Float @default(0)
+  currentStreak           Int   @default(0)
+  longestStreak           Int   @default(0)
+  lastActivityDate        DateTime?
+
+  // Category scores (JSON object: category -> score 0-100)
+  categoryScores  Json      @default("{}")
+
+  // Skill tags (JSON object: tag -> score 0-100)
+  skillTags       Json      @default("{}")
+
+  // Metadata
+  updatedAt       DateTime  @updatedAt
+}
+
+model UserAchievement {
+  id              String    @id @default(cuid())
+
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  achievementId   String    // References achievement from code
+  unlockedAt      DateTime  @default(now())
+  scenarioId      String?   // Scenario that triggered it
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+// Daily activity tracking for streaks and analytics
+model DailyActivity {
+  id              String    @id @default(cuid())
+  userId          String
+  date            DateTime  @db.Date
+
+  scenariosCompleted Int    @default(0)
+  timeSpentMinutes   Int    @default(0)
+  averageScore       Float  @default(0)
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+// ============================================================================
+// ANALYTICS & REPORTING
+// ============================================================================
+
+model GeneratedReport {
+  id              String    @id @default(cuid())
+  organizationId  String
+
+  reportType      ReportType
+  config          Json      // ReportConfig
+
+  status          ReportStatus @default(PENDING)
+  downloadUrl     String?
+  errorMessage    String?
+
+  createdAt       DateTime  @default(now())
+  generatedAt     DateTime?
+  expiresAt       DateTime?
+}
+
+// Audit log for compliance
+model AuditLog {
+  id              String    @id @default(cuid())
+
+  userId          String?
+  organizationId  String?
+
+  action          String    // e.g., "user.login", "scenario.completed"
+  resource        String?   // e.g., "scenario:conditional-access-101"
+  details         Json      @default("{}")
+  ipAddress       String?
+  userAgent       String?
+
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum ExperienceLevel {
+  JUNIOR
+  MID
+  SENIOR
+  LEAD
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum ApiKeyStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum ScenarioCategory {
+  IDENTITY_ACCESS
+  CONDITIONAL_ACCESS
+  DEFENDER
+  EXCHANGE
+  INTUNE
+  TENANT_ADMIN
+}
+
+enum ScenarioDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum ReportType {
+  TEAM_PROGRESS
+  INDIVIDUAL_PROGRESS
+  SKILL_GAP_ANALYSIS
+  SCENARIO_COMPLETION
+  TIME_TRACKING
+}
+
+enum ReportStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+}

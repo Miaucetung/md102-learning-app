@@ -42,7 +42,7 @@ DEINE AUFGABE: Als Security Administrator musst du sicherstellen, dass selbst ge
         "Authentication, Authorization, Audit",
         "Identity, Location, Time",
       ],
-      correctIndex: 1,
+      correctAnswer: "Assignments, Conditions, Access Controls",
       explanation:
         "Jede CA Policy besteht aus: 1) Assignments (WER: Benutzer/Gruppen, WAS: Apps), 2) Conditions (WANN: Standort, Gerätestatus, Risiko), 3) Access Controls (DANN: Gewähren, Blockieren, MFA erfordern)",
       reflection:
@@ -181,16 +181,27 @@ DEINE AUFGABE: Als Security Administrator musst du sicherstellen, dass selbst ge
       title: "Die richtige Policy für jedes Szenario",
       scenario:
         "Du musst verschiedene Sicherheitsanforderungen mit Conditional Access umsetzen. Wähle für jedes Szenario die passende Policy-Konfiguration.",
-      decisions: [
+      steps: [
         {
           question:
             "Admins sollen IMMER MFA machen müssen, egal von wo sie zugreifen",
           options: [
-            "Users: Directory Roles: Global Admin | Conditions: Any | Grant: Require MFA",
-            "Users: All Users | Apps: Admin Portals | Grant: Require MFA",
-            "Users: Directory Roles: All Admin Roles | Conditions: None | Grant: Require MFA",
+            {
+              label:
+                "Users: Directory Roles: Global Admin | Conditions: Any | Grant: Require MFA",
+              isCorrect: false,
+            },
+            {
+              label:
+                "Users: All Users | Apps: Admin Portals | Grant: Require MFA",
+              isCorrect: false,
+            },
+            {
+              label:
+                "Users: Directory Roles: All Admin Roles | Conditions: None | Grant: Require MFA",
+              isCorrect: true,
+            },
           ],
-          correctIndex: 2,
           explanation:
             "Für Admins sollte MFA bedingungslos sein. Targeting über Directory Roles statt Gruppen ist Best Practice, da es automatisch alle Admins erfasst.",
         },
@@ -198,26 +209,49 @@ DEINE AUFGABE: Als Security Administrator musst du sicherstellen, dass selbst ge
           question:
             "Gäste sollen nur von managed Devices auf SharePoint zugreifen",
           options: [
-            "Users: All guests | Apps: SharePoint | Grant: Require compliant device",
-            "Users: All guests | Apps: SharePoint | Grant: Require Hybrid Azure AD Join",
-            "Users: All guests | Apps: SharePoint | Grant: Require device marked as compliant",
+            {
+              label:
+                "Users: All guests | Apps: SharePoint | Grant: Require compliant device",
+              isCorrect: false,
+            },
+            {
+              label:
+                "Users: All guests | Apps: SharePoint | Grant: Require Hybrid Azure AD Join",
+              isCorrect: false,
+            },
+            {
+              label:
+                "Users: All guests | Apps: SharePoint | Grant: Require device marked as compliant",
+              isCorrect: true,
+            },
           ],
-          correctIndex: 2,
           explanation:
             "'Require device to be marked as compliant' funktioniert für Intune-managed Devices. Hybrid Join funktioniert nicht für Gäste da deren Geräte nicht in eurem AD sind.",
         },
         {
           question: "Hochrisiko-Anmeldungen sollen blockiert werden",
           options: [
-            "Users: All | Conditions: Sign-in risk = High | Access: Block",
-            "Users: All | Conditions: User risk = High | Access: Block",
-            "Users: All | Conditions: Any risk | Access: Block",
+            {
+              label:
+                "Users: All | Conditions: Sign-in risk = High | Access: Block",
+              isCorrect: true,
+            },
+            {
+              label:
+                "Users: All | Conditions: User risk = High | Access: Block",
+              isCorrect: false,
+            },
+            {
+              label: "Users: All | Conditions: Any risk | Access: Block",
+              isCorrect: false,
+            },
           ],
-          correctIndex: 0,
           explanation:
             "Sign-in Risk bezieht sich auf das aktuelle Login (z.B. Impossible Travel). User Risk bezieht sich auf den Benutzer selbst (z.B. Leaked Credentials). Für Login-Blockade ist Sign-in Risk richtig.",
         },
       ],
+      summary:
+        "Du hast gelernt, wie man Conditional Access Policies für verschiedene Szenarien konfiguriert.",
     },
 
     // Block 6: Concept - MFA Methods

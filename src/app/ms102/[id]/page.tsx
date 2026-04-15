@@ -1,8 +1,21 @@
 "use client";
+import DOMPurify from "isomorphic-dompurify";
+import { marked } from "marked";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { QUESTIONS_MS102 } from "../data/questions";
+
+// Configure marked for GFM tables
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+});
+
+function renderMarkdown(text: string): string {
+  const html = marked.parse(text, { async: false }) as string;
+  return DOMPurify.sanitize(html);
+}
 
 export default function Ms102QuestionPage() {
   const router = useRouter();
@@ -10,6 +23,17 @@ export default function Ms102QuestionPage() {
   const question = QUESTIONS_MS102.find((q) => q.id === id);
   const [choice, setChoice] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
+
+  // Memoize rendered markdown
+  const renderedQuestion = useMemo(
+    () => (question ? renderMarkdown(question.question) : ""),
+    [question],
+  );
+  const renderedExplanation = useMemo(
+    () =>
+      question?.explanationDe ? renderMarkdown(question.explanationDe) : "",
+    [question?.explanationDe],
+  );
 
   if (!question) {
     return (
@@ -37,7 +61,13 @@ export default function Ms102QuestionPage() {
       </header>
 
       <div className="space-y-4">
-        <p className="font-medium whitespace-pre-line">{question.question}</p>
+        <div
+          className="font-medium prose prose-sm max-w-none dark:prose-invert
+            prose-table:border prose-table:border-zinc-300 dark:prose-table:border-zinc-600
+            prose-th:bg-zinc-100 dark:prose-th:bg-zinc-800 prose-th:p-2 prose-th:text-left
+            prose-td:p-2 prose-td:border prose-td:border-zinc-200 dark:prose-td:border-zinc-700"
+          dangerouslySetInnerHTML={{ __html: renderedQuestion }}
+        />
         {question.options.map((opt, i) => (
           <label
             key={i}
@@ -81,9 +111,13 @@ export default function Ms102QuestionPage() {
               Richtige Antwort: {question.correctAnswers}
             </p>
             {question.explanationDe && (
-              <p className="text-sm mt-2 text-zinc-700 whitespace-pre-line">
-                {question.explanationDe}
-              </p>
+              <div
+                className="text-sm mt-2 text-zinc-700 dark:text-zinc-300 prose prose-sm max-w-none dark:prose-invert
+                  prose-table:border prose-table:border-zinc-300 dark:prose-table:border-zinc-600
+                  prose-th:bg-zinc-100 dark:prose-th:bg-zinc-800 prose-th:p-2 prose-th:text-left
+                  prose-td:p-2 prose-td:border prose-td:border-zinc-200 dark:prose-td:border-zinc-700"
+                dangerouslySetInnerHTML={{ __html: renderedExplanation }}
+              />
             )}
           </div>
         )}

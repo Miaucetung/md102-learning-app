@@ -1,14 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Markdown } from "@/components/ui/Markdown";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { QUESTIONS_MS102 } from "./data/questions";
 
 type AnswerMap = Record<string, string[]>;
 
 export default function Ms102TestPage() {
   const [answers, setAnswers] = useState<AnswerMap>({});
-  const [showResult, setShowResult] = useState(false); // nur noch für Gesamt-Statistik
+  const [showResult, setShowResult] = useState(false);
 
   const stats = useMemo(() => {
     const total = QUESTIONS_MS102.length;
@@ -42,7 +43,7 @@ export default function Ms102TestPage() {
   const handleSelect = (
     questionId: string,
     optionKey: string,
-    isMulti: boolean
+    isMulti: boolean,
   ) => {
     setAnswers((prev) => {
       const prevSelected = prev[questionId] || [];
@@ -73,19 +74,23 @@ export default function Ms102TestPage() {
       {/* Header */}
       <header className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">MS-102 – Gesamttest (476 Fragen)</h1>
+          <h1 className="text-2xl font-bold">
+            MS-102 – Prüfungsvorbereitung ({QUESTIONS_MS102.length} Fragen)
+          </h1>
           <p className="text-sm text-zinc-600">
-            Die Fragen sind in fester Reihenfolge. Jede Frage hat ihre
-            ursprüngliche ID (z. B. Q4, Q11 …) zur Wiedererkennung.
+            🇬🇧 Fragen auf Englisch (Prüfungssprache) · 🇩🇪 Erklärungen auf
+            Deutsch
           </p>
         </div>
 
-        <Link
-          href="/"
-          className="text-sm px-3 py-2 rounded border border-zinc-300 hover:bg-zinc-50"
-        >
-          ⬅️ Zur Startseite
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="text-sm px-3 py-2 rounded border border-zinc-300 hover:bg-zinc-50"
+          >
+            ⬅️ Zur Startseite
+          </Link>
+        </div>
       </header>
 
       {/* Status / Steuerung */}
@@ -131,7 +136,9 @@ export default function Ms102TestPage() {
       {/* Auswertung nach Themengebieten */}
       {showResult && (
         <section className="border rounded-lg p-4 space-y-2">
-          <h2 className="font-semibold text-lg">Auswertung nach Themengebieten</h2>
+          <h2 className="font-semibold text-lg">
+            Auswertung nach Themengebieten
+          </h2>
           <div className="text-sm text-zinc-700 space-y-1">
             {Object.entries(stats.perArea).map(([area, v]) => {
               const pct = Math.round((v.correct / v.total) * 100);
@@ -171,8 +178,14 @@ export default function Ms102TestPage() {
           const colorClass = isQuestionCorrect
             ? "border-emerald-500 bg-emerald-50/40"
             : isQuestionWrong
-            ? "border-red-400 bg-red-50/40"
-            : "border-zinc-200";
+              ? "border-red-400 bg-red-50/40"
+              : "border-zinc-200";
+
+          // Get content - questions are always in English (exam language)
+          // Explanations have German (explanationDe) and optional English
+          const questionText = q.question; // Always English
+          const options = q.options; // Always English
+          const explanation = q.explanationDe; // Always German (for now)
 
           return (
             <article
@@ -190,7 +203,8 @@ export default function Ms102TestPage() {
                   </p>
                   {isMulti ? (
                     <p className="text-[11px] text-amber-700">
-                      ⚠️ Mehrfachauswahl: Es können mehrere Antworten korrekt sein.
+                      ⚠️ Mehrfachauswahl: Es können mehrere Antworten korrekt
+                      sein.
                     </p>
                   ) : (
                     <p className="text-[11px] text-zinc-500">
@@ -200,14 +214,15 @@ export default function Ms102TestPage() {
                 </div>
               </header>
 
-              {/* Fragestellung – mit Zeilenumbrüchen */}
-              <p className="whitespace-pre-line text-sm text-zinc-900">
-                {q.question}
-              </p>
+              {/* Fragestellung – mit Markdown-Tabellen */}
+              <Markdown
+                content={questionText}
+                className="text-sm text-zinc-900"
+              />
 
               {/* Antwortoptionen */}
               <div className="space-y-2">
-                {q.options.map((opt) => {
+                {options.map((opt) => {
                   const isSelected = selected.includes(opt.key);
 
                   const isCorrectOpt =
@@ -227,8 +242,8 @@ export default function Ms102TestPage() {
                         isCorrectOpt
                           ? "bg-emerald-50 border-emerald-500"
                           : isSelectedWrong
-                          ? "bg-red-50 border-red-400"
-                          : ""
+                            ? "bg-red-50 border-red-400"
+                            : ""
                       }`}
                     >
                       <input
@@ -249,9 +264,11 @@ export default function Ms102TestPage() {
 
               {/* Erklärung – direkt nach Auswahl anzeigen */}
               {hasAnswered && (
-                <div className="mt-2 border-t pt-2 text-xs text-zinc-700 whitespace-pre-line">
-                  <p className="font-semibold mb-1">Erklärung:</p>
-                  <p>{q.explanationDe}</p>
+                <div className="mt-2 border-t pt-2 text-xs text-zinc-700">
+                  <p className="font-semibold mb-1">
+                    {isEnglish ? "Explanation:" : "Erklärung:"}
+                  </p>
+                  <Markdown content={explanation} className="prose-xs" />
                 </div>
               )}
             </article>

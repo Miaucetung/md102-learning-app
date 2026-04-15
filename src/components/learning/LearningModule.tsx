@@ -20,6 +20,7 @@ import type {
   LearningBlock,
   LearningModule as LearningModuleType,
 } from "@/content/types";
+import DOMPurify from "isomorphic-dompurify";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -35,8 +36,9 @@ import {
   PlayCircle,
   Target,
 } from "lucide-react";
+import { marked } from "marked";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ComparisonBlock,
   ConceptBlock,
@@ -49,6 +51,33 @@ import {
   SummaryBlock,
   TerminalBlock,
 } from "./blocks";
+
+// Configure marked for GFM
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+});
+
+// Helper component to render markdown content
+function MarkdownContent({
+  content,
+  className,
+}: {
+  content: string;
+  className?: string;
+}) {
+  const renderedHtml = useMemo(() => {
+    const rawHtml = marked.parse(content) as string;
+    return DOMPurify.sanitize(rawHtml);
+  }, [content]);
+
+  return (
+    <div
+      className={className}
+      dangerouslySetInnerHTML={{ __html: renderedHtml }}
+    />
+  );
+}
 
 // ============================================================================
 // SUB-COMPONENTS
@@ -256,16 +285,18 @@ export function LearningModule({
         <h1 className="text-3xl font-bold text-white mb-4">{module.title}</h1>
 
         {/* Skill Tags */}
-        <div className="flex flex-wrap gap-2">
-          {module.skillTags.map((tag) => (
-            <span
-              key={tag}
-              className="px-2 py-1 rounded-lg bg-blue-500/20 text-blue-300 text-xs"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+        {module.skillTags && module.skillTags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {module.skillTags.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-1 rounded-lg bg-blue-500/20 text-blue-300 text-xs"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Real-World Problem */}
@@ -283,26 +314,28 @@ export function LearningModule({
       </ExpandableSection>
 
       {/* Context */}
-      <ExpandableSection
-        title="Hintergrund"
-        icon={<BookOpen className="w-5 h-5" />}
-        defaultOpen
-        accentColor="#3b82f6"
-        badge={`${module.context.length} Punkte`}
-      >
-        <ul className="space-y-3">
-          {module.context.map((point, index) => (
-            <li key={index} className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-blue-400 text-xs font-semibold">
-                  {index + 1}
-                </span>
-              </div>
-              <span className="text-slate-200">{point}</span>
-            </li>
-          ))}
-        </ul>
-      </ExpandableSection>
+      {module.context && module.context.length > 0 && (
+        <ExpandableSection
+          title="Hintergrund"
+          icon={<BookOpen className="w-5 h-5" />}
+          defaultOpen
+          accentColor="#3b82f6"
+          badge={`${module.context.length} Punkte`}
+        >
+          <ul className="space-y-3">
+            {module.context.map((point, index) => (
+              <li key={index} className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-blue-400 text-xs font-semibold">
+                    {index + 1}
+                  </span>
+                </div>
+                <span className="text-slate-200">{point}</span>
+              </li>
+            ))}
+          </ul>
+        </ExpandableSection>
+      )}
 
       {/* Learning Blocks */}
       {module.blocks && module.blocks.length > 0 && (
@@ -318,36 +351,38 @@ export function LearningModule({
       )}
 
       {/* Lab Scenario */}
-      {module.labScenario && (
-        <ExpandableSection
-          title="Praktisches Lab"
-          icon={<PlayCircle className="w-5 h-5" />}
-          defaultOpen
-          accentColor="#10b981"
-          badge={`${module.labScenario.steps.length} Schritte`}
-        >
-          <div className="space-y-4">
-            {module.labScenario.description && (
-              <p className="text-slate-300 mb-4">
-                {module.labScenario.description}
-              </p>
-            )}
-            {module.labScenario.steps.map((step, index) => (
-              <LabStepCard key={step.id} step={step} stepNumber={index + 1} />
-            ))}
-            {module.labScenario.validation && (
-              <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
-                <h4 className="text-emerald-300 font-semibold mb-2">
-                  Validierung
-                </h4>
-                <p className="text-emerald-200 text-sm">
-                  {module.labScenario.validation}
+      {module.labScenario &&
+        module.labScenario.steps &&
+        module.labScenario.steps.length > 0 && (
+          <ExpandableSection
+            title="Praktisches Lab"
+            icon={<PlayCircle className="w-5 h-5" />}
+            defaultOpen
+            accentColor="#10b981"
+            badge={`${module.labScenario.steps.length} Schritte`}
+          >
+            <div className="space-y-4">
+              {module.labScenario.description && (
+                <p className="text-slate-300 mb-4">
+                  {module.labScenario.description}
                 </p>
-              </div>
-            )}
-          </div>
-        </ExpandableSection>
-      )}
+              )}
+              {module.labScenario.steps.map((step, index) => (
+                <LabStepCard key={step.id} step={step} stepNumber={index + 1} />
+              ))}
+              {module.labScenario.validation && (
+                <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                  <h4 className="text-emerald-300 font-semibold mb-2">
+                    Validierung
+                  </h4>
+                  <p className="text-emerald-200 text-sm">
+                    {module.labScenario.validation}
+                  </p>
+                </div>
+              )}
+            </div>
+          </ExpandableSection>
+        )}
 
       {/* Explanation */}
       <ExpandableSection
@@ -380,9 +415,10 @@ export function LearningModule({
                 <Lightbulb className="w-4 h-4" />
                 Deep Dive
               </h4>
-              <div className="text-blue-200 text-sm prose prose-invert prose-sm max-w-none whitespace-pre-line">
-                {module.explanation.deepDive}
-              </div>
+              <MarkdownContent
+                content={module.explanation.deepDive}
+                className="text-blue-200 text-sm prose prose-invert prose-sm prose-blue max-w-none prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700 prose-code:text-green-400"
+              />
             </div>
           )}
 

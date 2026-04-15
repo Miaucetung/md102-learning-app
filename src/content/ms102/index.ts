@@ -15,8 +15,8 @@ import { userManagementModule } from "./modules/user-management";
 
 export const ms102LearningModules: LearningModule[] = [
   tenantManagementModule,
-  userManagementModule as unknown as LearningModule,
-  entraSecurityModule as unknown as LearningModule,
+  userManagementModule as LearningModule,
+  entraSecurityModule as LearningModule,
 ];
 
 // Module lookup by slug

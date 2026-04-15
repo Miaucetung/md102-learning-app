@@ -9,13 +9,28 @@
  */
 
 import type { ConceptBlock as ConceptBlockType } from "@/content/types";
+import DOMPurify from "isomorphic-dompurify";
 import { BookOpen, Image, Lightbulb } from "lucide-react";
+import { marked } from "marked";
+import { useMemo } from "react";
+
+// Configure marked for GFM tables
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+});
 
 interface ConceptBlockProps {
   block: ConceptBlockType;
 }
 
 export function ConceptBlock({ block }: ConceptBlockProps) {
+  // Memoize markdown rendering for performance
+  const renderedContent = useMemo(() => {
+    const rawHtml = marked.parse(block.content) as string;
+    return DOMPurify.sanitize(rawHtml);
+  }, [block.content]);
+
   return (
     <div className="rounded-2xl border border-blue-500/30 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 overflow-hidden">
       {/* Header */}
@@ -31,12 +46,11 @@ export function ConceptBlock({ block }: ConceptBlockProps) {
 
       {/* Content */}
       <div className="p-6 space-y-4">
-        {/* Main Content */}
-        <div className="prose prose-invert prose-blue max-w-none">
-          <div className="text-slate-200 leading-relaxed whitespace-pre-line">
-            {block.content}
-          </div>
-        </div>
+        {/* Main Content - Now with markdown rendering */}
+        <div
+          className="prose prose-invert prose-blue max-w-none prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700 prose-code:text-green-400"
+          dangerouslySetInnerHTML={{ __html: renderedContent }}
+        />
 
         {/* Visual Aid */}
         {block.visualAid && (

@@ -42,7 +42,7 @@ DEINE AUFGABE: Als IT-Administrator musst du schnell und fehlerfrei 150 neue Ben
         "Benutzername, Anzeigename und Temporäres Kennwort",
         "Benutzername, Anzeigename, Kennwort und Lizenz",
       ],
-      correctIndex: 1,
+      correctAnswer: "Benutzername und Anzeigename",
       explanation:
         "Die CSV für den Admin Center Import benötigt mindestens User name (UPN) und Display name. Das Kennwort kann automatisch generiert werden, Lizenzen werden separat zugewiesen. Für PowerShell-Import können weitere Spalten wie Department, JobTitle etc. genutzt werden.",
       reflection:

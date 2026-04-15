@@ -1,12 +1,16 @@
 "use client";
 
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { PageHeader } from "@/components/layout";
+import { Markdown } from "@/components/ui/Markdown";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Award, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { QUESTIONS_MD102 } from "./questions-md102";
 
 export default function LabMd102ExamPage() {
   const [showAll, setShowAll] = useState(false);
+  const { isEnglish } = useLanguage();
   const displayQuestions = showAll
     ? QUESTIONS_MD102
     : QUESTIONS_MD102.slice(0, 20);
@@ -14,25 +18,31 @@ export default function LabMd102ExamPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
       <PageHeader
-        title="MD-102 Prüfungssimulation"
+        title={
+          isEnglish ? "MD-102 Exam Simulation" : "MD-102 Prüfungssimulation"
+        }
         subtitle="Endpoint Administrator"
         icon={Award}
         iconGradient="from-blue-500 to-blue-700"
         crossLinks={[
           {
             href: "/learn/md-102",
-            label: "Lernmodule",
+            label: isEnglish ? "Learning Modules" : "Lernmodule",
             icon: BookOpen,
           },
         ]}
       />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Bar */}
+        {/* Language + Stats Bar */}
         <div className="mb-6 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-6">
+            <LanguageSwitcher />
+            <div className="h-10 w-px bg-gray-200 dark:bg-gray-700" />
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Fragen</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {isEnglish ? "Questions" : "Fragen"}
+              </p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {QUESTIONS_MD102.length}
               </p>
@@ -40,7 +50,7 @@ export default function LabMd102ExamPage() {
             <div className="h-10 w-px bg-gray-200 dark:bg-gray-700" />
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Angezeigt
+                {isEnglish ? "Displayed" : "Angezeigt"}
               </p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {displayQuestions.length}
@@ -51,7 +61,13 @@ export default function LabMd102ExamPage() {
             onClick={() => setShowAll(!showAll)}
             className="px-4 py-2 text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
           >
-            {showAll ? "Weniger anzeigen" : "Alle anzeigen"}
+            {showAll
+              ? isEnglish
+                ? "Show less"
+                : "Weniger anzeigen"
+              : isEnglish
+                ? "Show all"
+                : "Alle anzeigen"}
           </button>
         </div>
 
@@ -71,7 +87,9 @@ export default function LabMd102ExamPage() {
               onClick={() => setShowAll(true)}
               className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-colors"
             >
-              Alle {QUESTIONS_MD102.length} Fragen laden
+              {isEnglish
+                ? `Load all ${QUESTIONS_MD102.length} questions`
+                : `Alle ${QUESTIONS_MD102.length} Fragen laden`}
             </button>
           </div>
         )}
@@ -86,12 +104,21 @@ type QuestionProps = {
 
 function QuestionCard({ question: q }: QuestionProps) {
   const [selected, setSelected] = useState<string | null>(null);
+  const { isEnglish } = useLanguage();
 
   const isAnswered = !!selected;
   const isCorrectSingle =
     isAnswered &&
     q.correctAnswers.length === 1 &&
     q.correctAnswers[0] === selected;
+
+  // Get language-specific content
+  const questionText = isEnglish && q.questionEn ? q.questionEn : q.question;
+  const options = isEnglish && q.optionsEn ? q.optionsEn : q.options;
+  const explanation =
+    isEnglish && q.explanationEn
+      ? q.explanationEn
+      : (q.explanation ?? q.explanationDe ?? "");
 
   return (
     <article
@@ -122,13 +149,14 @@ function QuestionCard({ question: q }: QuestionProps) {
       </div>
 
       {/* Question */}
-      <div className="whitespace-pre-line text-sm leading-relaxed text-gray-900 dark:text-white">
-        {q.question}
-      </div>
+      <Markdown
+        content={questionText}
+        className="text-sm leading-relaxed text-gray-900 dark:text-white"
+      />
 
       {/* Options */}
       <div className="space-y-2">
-        {q.options.map((opt) => {
+        {options.map((opt) => {
           const isSelected = selected === opt.key;
           const isCorrectOption = q.correctAnswers.includes(opt.key);
 
@@ -175,18 +203,20 @@ function QuestionCard({ question: q }: QuestionProps) {
         <div className="mt-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 text-sm space-y-3">
           <div className="flex items-center gap-2">
             <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded font-medium text-xs">
-              Richtig: {q.correctAnswers.join(", ")}
+              {isEnglish ? "Correct:" : "Richtig:"}{" "}
+              {q.correctAnswers.join(", ")}
             </span>
           </div>
 
-          <div className="whitespace-pre-line text-gray-700 dark:text-gray-300 leading-relaxed">
-            {q.explanation ?? q.explanationDe}
-          </div>
+          <Markdown
+            content={explanation}
+            className="text-gray-700 dark:text-gray-300 leading-relaxed"
+          />
 
           {q.references && q.references.length > 0 && (
             <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                Referenzen:
+                {isEnglish ? "References:" : "Referenzen:"}
               </p>
               <ul className="list-disc pl-5 text-xs text-gray-500 dark:text-gray-400">
                 {q.references.map((ref) => (
