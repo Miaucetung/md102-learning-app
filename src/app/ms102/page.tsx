@@ -74,10 +74,10 @@ export default function Ms102TestPage() {
       {/* Header */}
       <header className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
             MS-102 – Prüfungsvorbereitung ({QUESTIONS_MS102.length} Fragen)
           </h1>
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">
             🇬🇧 Fragen auf Englisch (Prüfungssprache) · 🇩🇪 Erklärungen auf
             Deutsch
           </p>
@@ -86,7 +86,7 @@ export default function Ms102TestPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="text-sm px-3 py-2 rounded border border-zinc-300 hover:bg-zinc-50"
+            className="text-sm px-3 py-2 rounded border border-zinc-300 dark:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
           >
             ⬅️ Zur Startseite
           </Link>
@@ -94,11 +94,11 @@ export default function Ms102TestPage() {
       </header>
 
       {/* Status / Steuerung */}
-      <section className="flex flex-wrap items-center gap-4 border rounded-lg p-4 bg-zinc-50">
-        <div className="text-sm space-y-1">
+      <section className="flex flex-wrap items-center gap-4 border rounded-lg p-4 bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700">
+        <div className="text-sm space-y-1 text-zinc-700 dark:text-zinc-200">
           <div>
             Beantwortet:{" "}
-            <span className="font-semibold">
+            <span className="font-semibold text-zinc-900 dark:text-white">
               {Object.keys(answers).length}/{QUESTIONS_MS102.length}
             </span>
           </div>
@@ -106,7 +106,7 @@ export default function Ms102TestPage() {
           {showResult && (
             <div>
               Ergebnis:{" "}
-              <span className="font-semibold">
+              <span className="font-semibold text-zinc-900 dark:text-white">
                 {stats.correct}/{stats.total} (
                 {Math.round((stats.correct / stats.total) * 100)}%)
               </span>
@@ -116,13 +116,13 @@ export default function Ms102TestPage() {
 
         <div className="flex gap-2 ml-auto">
           <button
-            className="px-3 py-2 rounded bg-zinc-900 text-white text-sm hover:bg-zinc-800"
+            className="px-3 py-2 rounded bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm hover:bg-zinc-800 dark:hover:bg-zinc-200"
             onClick={() => setShowResult(true)}
           >
             Gesamt-Ergebnis anzeigen
           </button>
           <button
-            className="px-3 py-2 rounded border text-sm"
+            className="px-3 py-2 rounded border border-zinc-300 dark:border-zinc-600 text-sm text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700"
             onClick={() => {
               setAnswers({});
               setShowResult(false);
@@ -135,17 +135,17 @@ export default function Ms102TestPage() {
 
       {/* Auswertung nach Themengebieten */}
       {showResult && (
-        <section className="border rounded-lg p-4 space-y-2">
-          <h2 className="font-semibold text-lg">
+        <section className="border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 space-y-2 bg-white dark:bg-zinc-800/50">
+          <h2 className="font-semibold text-lg text-zinc-900 dark:text-white">
             Auswertung nach Themengebieten
           </h2>
-          <div className="text-sm text-zinc-700 space-y-1">
+          <div className="text-sm text-zinc-700 dark:text-zinc-200 space-y-1">
             {Object.entries(stats.perArea).map(([area, v]) => {
               const pct = Math.round((v.correct / v.total) * 100);
               return (
                 <div
                   key={area}
-                  className="flex justify-between gap-4 border-b last:border-b-0 pb-1"
+                  className="flex justify-between gap-4 border-b border-zinc-200 dark:border-zinc-700 last:border-b-0 pb-1"
                 >
                   <span>{area}</span>
                   <span className="font-mono">
@@ -176,10 +176,10 @@ export default function Ms102TestPage() {
           const isQuestionWrong = hasAnswered && !isQuestionCorrect;
 
           const colorClass = isQuestionCorrect
-            ? "border-emerald-500 bg-emerald-50/40"
+            ? "border-emerald-500 bg-emerald-50/40 dark:bg-emerald-500/10"
             : isQuestionWrong
-              ? "border-red-400 bg-red-50/40"
-              : "border-zinc-200";
+              ? "border-red-400 bg-red-50/40 dark:bg-red-500/10"
+              : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50";
 
           // Get content - questions are always in English (exam language)
           // Explanations have German (explanationDe) and optional English

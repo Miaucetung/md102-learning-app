@@ -173,9 +173,9 @@ export default function Page() {
       </div>
 
       {/* Instructions Section */}
-      <Card className="border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50">
+      <Card className="border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800">
         <CardHeader
-          className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+          className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
           onClick={() => toggleSection("instructions")}
         >
           <div className="flex items-center justify-between">
@@ -200,14 +200,14 @@ export default function Page() {
               <CardContent className="space-y-6 pt-0">
                 {/* Checklist */}
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                  <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-3">
                     Checkliste
                   </h4>
                   <ul className="space-y-2">
                     {step.checklist.map((item, i) => (
                       <li
                         key={i}
-                        className="flex items-start gap-3 text-gray-700 dark:text-gray-200"
+                        className="flex items-start gap-3 text-gray-700 dark:text-gray-100"
                       >
                         <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
                         {item}
@@ -219,7 +219,7 @@ export default function Page() {
                 {/* PowerShell Reference */}
                 {step.powershell && (
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                    <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-3">
                       PowerShell Referenz
                     </h4>
                     <pre className="p-4 rounded-lg bg-gray-900 border border-gray-700 text-emerald-400 font-mono text-sm overflow-x-auto">
@@ -231,14 +231,14 @@ export default function Page() {
                 {/* Verification Steps */}
                 {step.verify.length > 0 && (
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                    <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-3">
                       Prüfen
                     </h4>
                     <ul className="space-y-2">
                       {step.verify.map((item, i) => (
                         <li
                           key={i}
-                          className="flex items-start gap-3 text-gray-700 dark:text-gray-200"
+                          className="flex items-start gap-3 text-gray-700 dark:text-gray-100"
                         >
                           <span className="text-blue-500">→</span>
                           {item}
@@ -250,17 +250,17 @@ export default function Page() {
 
                 {/* Notes */}
                 {step.notes && step.notes.length > 0 && (
-                  <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
-                    <h4 className="text-sm font-semibold text-amber-700 dark:text-amber-400 mb-2">
+                  <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/30">
+                    <h4 className="text-sm font-semibold text-amber-700 dark:text-amber-300 mb-2">
                       💡 Hinweise
                     </h4>
                     <ul className="space-y-1">
                       {step.notes.map((note, i) => (
                         <li
                           key={i}
-                          className="text-sm text-amber-800 dark:text-amber-200/80"
+                          className="text-sm text-amber-800 dark:text-amber-100"
                         >
-                          {note}
+                          • {note}
                         </li>
                       ))}
                     </ul>
