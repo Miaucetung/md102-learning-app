@@ -27,11 +27,12 @@ interface TerminalCommand {
 }
 
 interface InteractiveTerminalProps {
-  title: string;
+  title?: string;
   description?: string;
   commands: TerminalCommand[];
   onComplete?: () => void;
   allowSkip?: boolean;
+  prompt?: string;
 }
 
 interface HistoryEntry {
@@ -46,6 +47,7 @@ export function InteractiveTerminal({
   commands,
   onComplete,
   allowSkip = false,
+  prompt = "PS C:\\>",
 }: InteractiveTerminalProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [input, setInput] = useState("");
@@ -308,7 +310,7 @@ export function InteractiveTerminal({
             <div key={index} className="mb-1">
               {entry.type === "input" && (
                 <div className="flex items-start gap-2 text-blue-400">
-                  <span className="text-blue-300">PS C:\&gt;</span>
+                  <span className="text-blue-300">{prompt}</span>
                   <span>{entry.text}</span>
                 </div>
               )}
@@ -335,7 +337,7 @@ export function InteractiveTerminal({
           {/* Input Line */}
           {!isCompleted && (
             <div className="flex items-center gap-2 text-blue-400">
-              <span className="text-blue-300">PS C:\&gt;</span>
+              <span className="text-blue-300">{prompt}</span>
               <input
                 ref={inputRef}
                 type="text"

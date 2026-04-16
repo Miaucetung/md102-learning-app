@@ -14,9 +14,9 @@ import { tenantManagementModule } from "./modules/tenant-management";
 import { userManagementModule } from "./modules/user-management";
 
 export const ms102LearningModules: LearningModule[] = [
-  tenantManagementModule,
-  userManagementModule as LearningModule,
-  entraSecurityModule as LearningModule,
+  tenantManagementModule as unknown as LearningModule,
+  userManagementModule as unknown as LearningModule,
+  entraSecurityModule as unknown as LearningModule,
 ];
 
 // Module lookup by slug

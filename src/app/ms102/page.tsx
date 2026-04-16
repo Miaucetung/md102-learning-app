@@ -265,9 +265,7 @@ export default function Ms102TestPage() {
               {/* Erklärung – direkt nach Auswahl anzeigen */}
               {hasAnswered && (
                 <div className="mt-2 border-t pt-2 text-xs text-zinc-700">
-                  <p className="font-semibold mb-1">
-                    {isEnglish ? "Explanation:" : "Erklärung:"}
-                  </p>
+                  <p className="font-semibold mb-1">Erklärung:</p>
                   <Markdown content={explanation} className="prose-xs" />
                 </div>
               )}

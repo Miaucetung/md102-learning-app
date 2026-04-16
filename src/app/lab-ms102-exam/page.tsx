@@ -25,11 +25,10 @@ function QuestionCard({
     q.correctAnswers.length === 1 &&
     q.correctAnswers[0] === selected;
 
-  // Get language-specific content
-  const questionText = isEnglish && q.questionEn ? q.questionEn : q.question;
-  const options = isEnglish && q.optionsEn ? q.optionsEn : q.options;
-  const explanation =
-    isEnglish && q.explanationEn ? q.explanationEn : q.explanationDe;
+  // Get language-specific content (questions are English, explanations German)
+  const questionText = q.question;
+  const options = q.options;
+  const explanation = q.explanationDe ?? "";
 
   return (
     <article

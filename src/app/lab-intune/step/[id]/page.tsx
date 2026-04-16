@@ -175,6 +175,7 @@ export default function Page() {
                 </p>
               )}
               <GUISimulator
+                title={step.guiSimulator.title}
                 portal={step.guiSimulator.portal}
                 steps={step.guiSimulator.steps}
               />
@@ -192,14 +193,11 @@ export default function Page() {
                   {step.commandChallenge.description}
                 </p>
               )}
-              {step.commandChallenge.challenges.map((challenge, i) => (
-                <CommandChallenge
-                  key={i}
-                  instruction={challenge.instruction}
-                  parts={challenge.parts}
-                  explanation={challenge.explanation}
-                />
-              ))}
+              <CommandChallenge
+                title={step.commandChallenge.title}
+                description={step.commandChallenge.description}
+                challenges={step.commandChallenge.challenges}
+              />
             </div>
           )}
 
