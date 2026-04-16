@@ -14,10 +14,25 @@ import {
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-const stepMeta: Record<string, { icon: typeof Server; color: string; desc: string }> = {
-  t1: { icon: Server, color: "blue", desc: "System-Voraussetzungen prüfen & vorbereiten" },
-  t2: { icon: Monitor, color: "emerald", desc: "Hyper-V Rolle per PowerShell aktivieren" },
-  t3: { icon: Network, color: "purple", desc: "External, Internal & Private Switch erstellen" },
+const stepMeta: Record<
+  string,
+  { icon: typeof Server; color: string; desc: string }
+> = {
+  t1: {
+    icon: Server,
+    color: "blue",
+    desc: "System-Voraussetzungen prüfen & vorbereiten",
+  },
+  t2: {
+    icon: Monitor,
+    color: "emerald",
+    desc: "Hyper-V Rolle per PowerShell aktivieren",
+  },
+  t3: {
+    icon: Network,
+    color: "purple",
+    desc: "External, Internal & Private Switch erstellen",
+  },
 };
 
 export default function HyperVList() {
@@ -50,8 +65,8 @@ export default function HyperVList() {
               Hyper-V Virtualisierung
             </h1>
             <p className="text-gray-600 dark:text-gray-300 max-w-2xl">
-              Richte Hyper-V auf deinem Windows-System ein, erstelle virtuelle Switches
-              und bereite die Grundlage für weitere Labs vor.
+              Richte Hyper-V auf deinem Windows-System ein, erstelle virtuelle
+              Switches und bereite die Grundlage für weitere Labs vor.
             </p>
           </div>
           <Badge
@@ -70,13 +85,19 @@ export default function HyperVList() {
       {/* Steps */}
       <div className="space-y-3">
         {HYPERV_STEPS.map((s, idx) => {
-          const meta = stepMeta[s.id] || { icon: Server, color: "blue", desc: "" };
+          const meta = stepMeta[s.id] || {
+            icon: Server,
+            color: "blue",
+            desc: "",
+          };
           const Icon = meta.icon;
           const isDone = !!map[s.id];
           const colorMap: Record<string, string> = {
             blue: "border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10",
-            emerald: "border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10",
-            purple: "border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/10",
+            emerald:
+              "border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10",
+            purple:
+              "border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/10",
           };
           const iconColorMap: Record<string, string> = {
             blue: "text-blue-500",
@@ -111,7 +132,9 @@ export default function HyperVList() {
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon className={`w-4 h-4 ${iconColorMap[meta.color] || "text-blue-500"}`} />
+                  <Icon
+                    className={`w-4 h-4 ${iconColorMap[meta.color] || "text-blue-500"}`}
+                  />
                   <h3 className="font-semibold text-zinc-900 dark:text-white">
                     {s.title}
                   </h3>

@@ -21,26 +21,77 @@ import { useEffect, useMemo, useState } from "react";
 
 const MID = "lab-intune-001";
 
-const stepMeta: Record<string, { icon: typeof Cloud; color: string; desc: string }> = {
-  i1:  { icon: Cloud, color: "blue", desc: "Microsoft 365 Developer-Tenant aufsetzen" },
-  i2:  { icon: Settings, color: "blue", desc: "MDM/MAM-Behörde konfigurieren" },
-  i3:  { icon: KeyRound, color: "amber", desc: "Multi-Faktor-Authentifizierung aktivieren" },
-  i4:  { icon: RefreshCw, color: "emerald", desc: "Entra Connect mit Password Hash Sync" },
-  i5:  { icon: Settings, color: "emerald", desc: "Seamless SSO & OU-Filter konfigurieren" },
-  i6:  { icon: RefreshCw, color: "emerald", desc: "Ersten Sync starten und verifizieren" },
-  i7:  { icon: Users, color: "purple", desc: "Synchronisierte Benutzer im Portal prüfen" },
-  i8:  { icon: UserCheck, color: "purple", desc: "Anmeldung im Cloud-Portal testen" },
-  i9:  { icon: Laptop, color: "cyan", desc: "Windows 11 Gerät in Entra/Intune einbinden" },
-  i10: { icon: Shield, color: "cyan", desc: "Compliance Policy erstellen und zuweisen" },
-  i11: { icon: Settings, color: "pink", desc: "Konfigurationsprofile über Settings Catalog" },
-  i12: { icon: Shield, color: "pink", desc: "Conditional Access für konforme Geräte" },
+const stepMeta: Record<
+  string,
+  { icon: typeof Cloud; color: string; desc: string }
+> = {
+  i1: {
+    icon: Cloud,
+    color: "blue",
+    desc: "Microsoft 365 Developer-Tenant aufsetzen",
+  },
+  i2: { icon: Settings, color: "blue", desc: "MDM/MAM-Behörde konfigurieren" },
+  i3: {
+    icon: KeyRound,
+    color: "amber",
+    desc: "Multi-Faktor-Authentifizierung aktivieren",
+  },
+  i4: {
+    icon: RefreshCw,
+    color: "emerald",
+    desc: "Entra Connect mit Password Hash Sync",
+  },
+  i5: {
+    icon: Settings,
+    color: "emerald",
+    desc: "Seamless SSO & OU-Filter konfigurieren",
+  },
+  i6: {
+    icon: RefreshCw,
+    color: "emerald",
+    desc: "Ersten Sync starten und verifizieren",
+  },
+  i7: {
+    icon: Users,
+    color: "purple",
+    desc: "Synchronisierte Benutzer im Portal prüfen",
+  },
+  i8: {
+    icon: UserCheck,
+    color: "purple",
+    desc: "Anmeldung im Cloud-Portal testen",
+  },
+  i9: {
+    icon: Laptop,
+    color: "cyan",
+    desc: "Windows 11 Gerät in Entra/Intune einbinden",
+  },
+  i10: {
+    icon: Shield,
+    color: "cyan",
+    desc: "Compliance Policy erstellen und zuweisen",
+  },
+  i11: {
+    icon: Settings,
+    color: "pink",
+    desc: "Konfigurationsprofile über Settings Catalog",
+  },
+  i12: {
+    icon: Shield,
+    color: "pink",
+    desc: "Conditional Access für konforme Geräte",
+  },
 };
 
 const categories = [
   { title: "Tenant-Setup", steps: ["i1", "i2", "i3"], color: "blue" },
   { title: "Entra Connect", steps: ["i4", "i5", "i6"], color: "emerald" },
   { title: "Benutzer & Anmeldung", steps: ["i7", "i8"], color: "purple" },
-  { title: "Geräte & Richtlinien", steps: ["i9", "i10", "i11", "i12"], color: "cyan" },
+  {
+    title: "Geräte & Richtlinien",
+    steps: ["i9", "i10", "i11", "i12"],
+    color: "cyan",
+  },
 ];
 
 export default function IntuneList() {
@@ -96,7 +147,8 @@ export default function IntuneList() {
         const catDone = catSteps.filter((s) => map[s.id]).length;
         const catColorMap: Record<string, string> = {
           blue: "border-blue-500/30 text-blue-600 dark:text-blue-400",
-          emerald: "border-emerald-500/30 text-emerald-600 dark:text-emerald-400",
+          emerald:
+            "border-emerald-500/30 text-emerald-600 dark:text-emerald-400",
           purple: "border-purple-500/30 text-purple-600 dark:text-purple-400",
           cyan: "border-cyan-500/30 text-cyan-600 dark:text-cyan-400",
         };
@@ -104,7 +156,9 @@ export default function IntuneList() {
         return (
           <div key={cat.title} className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className={`text-sm font-semibold uppercase tracking-wider ${catColorMap[cat.color]?.split(" ").slice(1).join(" ") || "text-zinc-500"}`}>
+              <h2
+                className={`text-sm font-semibold uppercase tracking-wider ${catColorMap[cat.color]?.split(" ").slice(1).join(" ") || "text-zinc-500"}`}
+              >
                 {cat.title}
               </h2>
               <span className="text-xs text-zinc-400 dark:text-zinc-500">
@@ -113,22 +167,33 @@ export default function IntuneList() {
             </div>
 
             {catSteps.map((s, idx) => {
-              const meta = stepMeta[s.id] || { icon: Cloud, color: "blue", desc: "" };
+              const meta = stepMeta[s.id] || {
+                icon: Cloud,
+                color: "blue",
+                desc: "",
+              };
               const Icon = meta.icon;
               const isDone = !!map[s.id];
               const globalIdx = INTUNE_STEPS.findIndex((st) => st.id === s.id);
 
               const bgMap: Record<string, string> = {
                 blue: "border-blue-500/20 bg-blue-500/5 hover:bg-blue-500/10",
-                amber: "border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10",
-                emerald: "border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10",
-                purple: "border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10",
+                amber:
+                  "border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10",
+                emerald:
+                  "border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10",
+                purple:
+                  "border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10",
                 cyan: "border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10",
                 pink: "border-pink-500/20 bg-pink-500/5 hover:bg-pink-500/10",
               };
               const iconMap: Record<string, string> = {
-                blue: "text-blue-500", amber: "text-amber-500", emerald: "text-emerald-500",
-                purple: "text-purple-500", cyan: "text-cyan-500", pink: "text-pink-500",
+                blue: "text-blue-500",
+                amber: "text-amber-500",
+                emerald: "text-emerald-500",
+                purple: "text-purple-500",
+                cyan: "text-cyan-500",
+                pink: "text-pink-500",
               };
 
               return (
@@ -156,7 +221,9 @@ export default function IntuneList() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <Icon className={`w-4 h-4 ${iconMap[meta.color] || "text-blue-500"}`} />
+                      <Icon
+                        className={`w-4 h-4 ${iconMap[meta.color] || "text-blue-500"}`}
+                      />
                       <h3 className="font-semibold text-zinc-900 dark:text-white text-sm">
                         {s.title}
                       </h3>

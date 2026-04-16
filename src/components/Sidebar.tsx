@@ -3,21 +3,25 @@
 import type { CertificationId } from "@/content/types";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  BarChart3,
   BookOpen,
   ChevronDown,
   ChevronRight,
   ChevronUp,
   Cloud,
+  Code,
+  FlaskConical,
   GraduationCap,
   Home,
   Laptop,
   Layers,
   Lock,
+  Monitor,
+  Network,
+  Server,
   Settings,
   Shield,
   Target,
-  TrendingUp,
+  Terminal,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -31,9 +35,105 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
-  { name: "Lernfortschritt", href: "/progress", icon: TrendingUp },
-  { name: "Prüfungsvorbereitung", href: "/exam-prep", icon: GraduationCap },
-  { name: "Statistiken", href: "/stats", icon: BarChart3 },
+  { name: "Alle Labs", href: "/lab", icon: FlaskConical },
+];
+
+// ============================================================================
+// LABS
+// ============================================================================
+
+const labItems = [
+  {
+    name: "Hyper-V Lab",
+    href: "/lab-hyperv",
+    icon: Server,
+    color: "text-blue-500",
+    bgColor: "bg-blue-500/10",
+  },
+  {
+    name: "Intune & Entra",
+    href: "/lab-intune",
+    icon: Cloud,
+    color: "text-purple-500",
+    bgColor: "bg-purple-500/10",
+  },
+  {
+    name: "AD / DNS / DHCP",
+    href: "/lab-addns",
+    icon: Network,
+    color: "text-emerald-500",
+    bgColor: "bg-emerald-500/10",
+  },
+  {
+    name: "PowerShell",
+    href: "/lab-powershell",
+    icon: Terminal,
+    color: "text-amber-500",
+    bgColor: "bg-amber-500/10",
+  },
+  {
+    name: "MD-102 Lab",
+    href: "/lab-md102",
+    icon: Monitor,
+    color: "text-cyan-500",
+    bgColor: "bg-cyan-500/10",
+  },
+];
+
+// ============================================================================
+// EXAMS
+// ============================================================================
+
+const examItems = [
+  {
+    name: "MD-102 Prüfung",
+    href: "/lab-md102-exam",
+    icon: GraduationCap,
+    color: "text-blue-500",
+    bgColor: "bg-blue-500/10",
+  },
+  {
+    name: "MS-102 Prüfung",
+    href: "/lab-ms102-exam",
+    icon: GraduationCap,
+    color: "text-purple-500",
+    bgColor: "bg-purple-500/10",
+  },
+  {
+    name: "AZ-104 Prüfung",
+    href: "/lab-az104-exam",
+    icon: GraduationCap,
+    color: "text-indigo-500",
+    bgColor: "bg-indigo-500/10",
+  },
+];
+
+// ============================================================================
+// LEARN
+// ============================================================================
+
+const learnItems = [
+  {
+    name: "MD-102 Lernen",
+    href: "/learn/md-102",
+    icon: BookOpen,
+    color: "text-blue-500",
+    bgColor: "bg-blue-500/10",
+  },
+  {
+    name: "MS-102 Lernen",
+    href: "/learn/ms-102",
+    icon: BookOpen,
+    color: "text-purple-500",
+    bgColor: "bg-purple-500/10",
+  },
+  {
+    name: "Netzwerk-Basics",
+    href: "/theory/network-basics",
+    icon: Code,
+    color: "text-emerald-500",
+    bgColor: "bg-emerald-500/10",
+  },
 ];
 
 // ============================================================================
@@ -262,6 +362,9 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const [isTracksExpanded, setIsTracksExpanded] = useState(true);
+  const [isLabsExpanded, setIsLabsExpanded] = useState(true);
+  const [isExamsExpanded, setIsExamsExpanded] = useState(false);
+  const [isLearnExpanded, setIsLearnExpanded] = useState(false);
   const tracks = certification === "md102" ? md102Tracks : ms102Tracks;
 
   const handleCertSwitch = (id: CertificationId) => {
@@ -317,7 +420,7 @@ export function Sidebar({
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 overflow-y-auto p-4 space-y-6">
+      <nav className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* Primary Navigation */}
         <div className="space-y-1">
           {navigation.map((item) => {
@@ -341,6 +444,156 @@ export function Sidebar({
           })}
         </div>
 
+        {/* Labs Section */}
+        <div>
+          <button
+            onClick={() => setIsLabsExpanded(!isLabsExpanded)}
+            className="flex items-center justify-between w-full px-3 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+          >
+            <span>Labs</span>
+            {isLabsExpanded ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+
+          <AnimatePresence>
+            {isLabsExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="space-y-1 mt-1"
+              >
+                {labItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onNavigate}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all group ${
+                        isActive
+                          ? `${item.bgColor} ${item.color} font-medium`
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <div
+                        className={`p-1.5 rounded-lg ${item.bgColor} ${item.color}`}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="truncate text-sm">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Exams Section */}
+        <div>
+          <button
+            onClick={() => setIsExamsExpanded(!isExamsExpanded)}
+            className="flex items-center justify-between w-full px-3 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+          >
+            <span>Prüfungen</span>
+            {isExamsExpanded ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+
+          <AnimatePresence>
+            {isExamsExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="space-y-1 mt-1"
+              >
+                {examItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onNavigate}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all group ${
+                        isActive
+                          ? `${item.bgColor} ${item.color} font-medium`
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <div
+                        className={`p-1.5 rounded-lg ${item.bgColor} ${item.color}`}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="truncate text-sm">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Learn Section */}
+        <div>
+          <button
+            onClick={() => setIsLearnExpanded(!isLearnExpanded)}
+            className="flex items-center justify-between w-full px-3 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+          >
+            <span>Lernen</span>
+            {isLearnExpanded ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+
+          <AnimatePresence>
+            {isLearnExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="space-y-1 mt-1"
+              >
+                {learnItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onNavigate}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all group ${
+                        isActive
+                          ? `${item.bgColor} ${item.color} font-medium`
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <div
+                        className={`p-1.5 rounded-lg ${item.bgColor} ${item.color}`}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="truncate text-sm">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         {/* Tracks Section */}
         <div>
           <button
@@ -361,7 +614,7 @@ export function Sidebar({
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="space-y-1 mt-2"
+                className="space-y-1 mt-1"
               >
                 {tracks.map((track) => {
                   const Icon = track.icon;
@@ -371,7 +624,7 @@ export function Sidebar({
                       key={track.id}
                       href={track.href}
                       onClick={onNavigate}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all group ${
                         isActive
                           ? `${track.bgColor} ${track.color} font-medium`
                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
